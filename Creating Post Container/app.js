@@ -55,6 +55,7 @@ function renderPosts() {
         const likeButton = document.createElement('button');
         likeButton.textContent = `Like`;
         likeButton.classList.add('like-button');
+
         likeButton.addEventListener('click', () => {
             if (!likedPosts.has(post.id)) {
                 likePost(post.id);
@@ -75,6 +76,7 @@ function renderPosts() {
         const commentButton = document.createElement('button');
         commentButton.textContent = 'Comment';
         commentButton.classList.add('comment-button');
+
         commentButton.addEventListener('click', () => {
             addComment(post.id, commentInput.value);
             commentInput.value = '';
@@ -116,7 +118,16 @@ function renderPosts() {
     });
 }
 
-// Function to handle post liking
+const postInput = document.querySelector('#postInput');
+const postImg = document.querySelector('#imageInput');
+const postForm = document.getElementById('postForm');
+
+postForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    addPost();
+    renderPosts();
+});
+
 function likePost(postId) {
     const post = postsData.find(post => post.id === postId);
     if (post) {
@@ -125,7 +136,6 @@ function likePost(postId) {
     }
 }
 
-// Function to handle adding a comment
 function addComment(postId, comment) {
     const post = postsData.find(post => post.id === postId);
     if (post) {
@@ -134,9 +144,33 @@ function addComment(postId, comment) {
     }
 }
 
-// Create your function here to handle post creation and adding Post to the postsData.
+function addPost() {
+    const postContent = postInput.value;
+    const postImage = postImg.files[0];
 
-// Add Event listeners to listen to the submit event of the form.
+    if (postContent && postImage && (postImage instanceof Blob || postImage instanceof File)) {
+        const post = {
+            id: postsData.length + 1,
+            author: 'You',
+            content: postContent,
+            likes: 0,
+            comments: [],
+            image: ''
+        };
 
-                     
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            post.image = event.target.result;
+            postsData.push(post);
+            postInput.value = '';
+            renderPosts();
+        };
+
+        reader.readAsDataURL(postImage);
+    } else {
+        console.error('Please provide both content and a valid image file.');
+    }
+}
+
 renderPosts();
